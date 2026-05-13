@@ -20,6 +20,29 @@ enum Token {
 DIGIT [0-9]
 LETTER [A-Za-z]
 
+HEX_DIGIT [0-9a-fA-F]
+OCT_DIGIT [0-7]
+
+DEC_LIT ([1-9][0-9]*|0)
+HEX_LIT "0"[xX]{HEX_DIGIT}+
+OCT_LIT "0"{OCT_DIGIT}+
+
+BAD_HEX 0[xX]{HEX_DIGIT}*({LETTER}|_)[0-9a-zA-Z_]*
+BAD_HEX_PREFIX 0[xX]
+BAD_OCT 0{OCT_DIGIT}*([8-9]|{LETTER}|_)[0-9a-zA-Z_]*
+
+EXP [eE][+-]?{DIGIT}+
+FSUFF [fF]
+FLOAT_LIT1 {DIGIT}+"."{DIGIT}*{EXP}?{FSUFF}?
+FLOAT_LIT2 "."{DIGIT}+{EXP}?{FSUFF}?
+FLOAT_LIT3 {DIGIT}+{EXP}{FSUFF}?
+FLOAT_LIT ({FLOAT_LIT1}|{FLOAT_LIT2}|{FLOAT_LIT3})
+
+BAD_NUM {DIGIT}+({LETTER}|_)({LETTER}|{DIGIT}|_)*
+
+ID ({LETTER}|_)({LETTER}|{DIGIT}|_)*
+
+
 MultilineComment "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/"
 SingleLineComment "//".*$
 
@@ -38,6 +61,20 @@ SingleLineComment "//".*$
 
 "break" {printf("%s : BREAK\n", yytext); return BREAK; }
 "continue" {printf("%s : CONTINUE\n", yytext); return CONTINUE; }
+
+{FLOAT_LIT} { printf("%s : FLOAT_LIT\n", yytext); return FLOAT_LIT; }
+
+{HEX_LIT} { printf("%s : INT_LIT\n", yytext); return INT_LIT; }
+{OCT_LIT} { printf("%s : INT_LIT\n", yytext); return INT_LIT; }
+{DEC_LIT} { printf("%s : INT_LIT\n", yytext); return INT_LIT; }
+
+{BAD_HEX} { printf("Lexical error - line %d : %s\n", yylineno, yytext); return LEX_ERR; }
+{BAD_HEX_PREFIX} { printf("Lexical error - line %d : %s\n", yylineno, yytext); return LEX_ERR; }
+{BAD_OCT} { printf("Lexical error - line %d : %s\n", yylineno, yytext); return LEX_ERR; }
+
+{BAD_NUM} { printf("Lexical error - line %d : %s\n", yylineno, yytext); return LEX_ERR; }
+
+{ID} { printf("%s : ID\n", yytext); return ID; }
 
 "(" {printf("%s : LP\n", yytext); return LP; }
 ")" {printf("%s : RP\n", yytext); return RP; }
