@@ -136,13 +136,31 @@ RC: '}';
 COMMA: ',';
 SEMI: ';';
 
-Ident: ;
+Ident: [A-Za-z_] [A-Za-z0-9_]*;
 
 IntConst:
+    DecIntConst
+    | OctIntConst
+    | HexIntConst
 ;
 
 FloatConst:
+    Digit+ '.' Digit* Exponent? FloatSuffix?
+    | '.' Digit+ Exponent? FloatSuffix?
+    | Digit+ Exponent FloatSuffix?
     ;
+
+fragment Digit: [0-9];
+fragment HexDigit: [0-9a-fA-F];
+fragment DecIntConst: [1-9] Digit*;
+fragment OctIntConst: '0' [0-7]*;
+fragment HexIntConst: '0' [xX] HexDigit+;
+fragment Exponent: [eE] [+-]? Digit+;
+fragment FloatSuffix: [fF];
+fragment BadOctConst: '0' [0-7]* [8-9] Digit*;
+fragment BadNumConst: Digit+ [A-Za-z_] [A-Za-z0-9_]*;
+fragment BadHexConst: '0' [xX] HexDigit* [g-zG-Z_] [A-Za-z0-9_]*;
+fragment BadHexPrefix: '0' [xX];
 
 Whitespace: [ \r\t]+ -> skip;
 
@@ -152,4 +170,10 @@ BlockComment: '/*' .*? '*/' -> skip;
 
 LineComment: '//' (~'\n'* '\\\n')* ~'\n'* -> skip;
 
-LEX_ERR : ;
+LEX_ERR
+    : BadOctConst
+    | BadNumConst
+    | BadHexConst
+    | BadHexPrefix
+    | .
+    ;

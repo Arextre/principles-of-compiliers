@@ -21,7 +21,7 @@ public class Main {
                     "VOID", "WHILE", "ASSIGN", "ADD", "SUB", "MUL", "DIV", "MOD", "EQ", "NE",
                     "LT", "LE", "GT", "GE", "LNOT", "LAND", "LOR", "LP", "RP", "LB", "RB",
                     "LC", "RC", "COMMA", "SEMI", "Ident", "IntConst", "FloatConst", "Whitespace",
-                    "Newline", "BlockComment", "LineComment"
+                    "Newline", "BlockComment", "LineComment", "LEX_ERR"
         };
 
         if (args.length < 1) {
@@ -41,11 +41,18 @@ public class Main {
         tokens.fill();
 
         for (Token token : tokens.getTokens()) {
+            int type = token.getType();
 
+            if (type == EOF) {
+                continue;
+            }
 
+            if (type == LEX_ERR) {
+                System.out.println("Lexical error - line " + token.getLine() + " : " + token.getText());
+                continue;
+            }
 
-
-
+            System.out.println(token.getText() + " :" + tokenNames[type]);
         }
 
         /* Parser:
